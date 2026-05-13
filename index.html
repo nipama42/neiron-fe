@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32" />
+  <link rel="shortcut icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/favicon.png" />
+  <script>
+    (function () {
+      try {
+        var s = localStorage.getItem('neiro_theme');
+        if (s === 'light' || s === 'dark') {
+          document.documentElement.dataset.theme = s;
+          return;
+        }
+      } catch (e) {}
+      try {
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          document.documentElement.dataset.theme = 'dark';
+          return;
+        }
+      } catch (e) {}
+      document.documentElement.dataset.theme = 'light';
+    })();
+  </script>
+  <meta name="yandex-verification" content="0a6029d4a115bed5" />
+  <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+  />
+  <title>NEIRON — Нано Банана, GPT Image 2, Kling, Veo 3 и другие нейросети</title>
+  <meta
+          name="description"
+          content="Нано Банана, Нано Банана 2, Нано Банана Про, GPT Image 2, Клинг, Google Veo 3 — фото, видео и музыка с ИИ в одном сервисе. Публичная лента, профили, бонусы."
+  />
+  <meta
+          name="keywords"
+          content="NEIRON, Neiron, нейросеть, Нано Банана, Нано Банана 2, Нано Банана Про, Nano Banana, GPT Image 2, Gpt Image 2, Клинг, Kling, Google Veo 3, Veo 3, генерация изображений, видео ИИ, Suno"
+  />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#0f0f0f" />
+  <link rel="canonical" href="https://neiron.space/" />
+
+  <!-- Open Graph (превью в Telegram, VK, мессенджерах) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="NEIRON" />
+  <meta property="og:locale" content="ru_RU" />
+  <meta property="og:url" content="https://neiron.space/" />
+  <meta property="og:title" content="NEIRON — Нано Банана, GPT Image 2, Kling, Veo 3" />
+  <meta
+          property="og:description"
+          content="Нано Банана, Нано Банана 2, Нано Банана Про, GPT Image 2, Клинг, Google Veo 3 — генерируйте фото, видео и музыку с ИИ. Лента и профили авторов."
+  />
+  <meta property="og:image" content="https://neiron.space/mainlogo.png" />
+  <meta property="og:image:alt" content="NEIRON" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="NEIRON — Нано Банана, GPT Image 2, Kling, Veo 3" />
+  <meta
+          name="twitter:description"
+          content="Нано Банана, Нано Банана 2, Нано Банана Про, GPT Image 2, Клинг, Google Veo 3 — фото, видео и музыка с ИИ."
+  />
+  <meta name="twitter:image" content="https://neiron.space/mainlogo.png" />
+  <!-- SDK подгружается из JS (async), чтобы не блокировать первый рендер (Lighthouse). -->
+  <link rel="dns-prefetch" href="https://telegram.org" />
+  <link rel="preconnect" href="https://telegram.org" crossorigin />
+  <link rel="preconnect" href="https://neiron.ams3.digitaloceanspaces.com" crossorigin />
+</head>
+
+<body>
+<div id="root"></div>
+<script type="module" src="/src/main.tsx"></script>
+</body>
+
+</html>
