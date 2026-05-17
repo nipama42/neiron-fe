@@ -306,6 +306,20 @@ export async function completePasswordRecovery(
   return res.json()
 }
 
+export async function refreshTokensApi(
+  refreshToken: string
+): Promise<{ token: string; refreshToken: string }> {
+  const res = await fetch(`${API_BASE}/auth/token/refresh`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refreshToken }),
+  })
+  if (!res.ok) {
+    throw new Error(`Refresh failed: ${res.status}`)
+  }
+  return res.json()
+}
+
 export async function requestBotLoginUrl(
   options?: { partnerSlug?: string }
 ): Promise<{ loginUrl: string; token: string }> {

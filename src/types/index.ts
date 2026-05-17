@@ -11,21 +11,6 @@ export interface Template {
   isNew?: boolean
 }
 
-export interface User {
-  id: string
-  telegramId: number | null
-  tgUsername: string
-  tgFirstName: string
-  email: string | null
-  creditsBalance: number
-  shareByDefault: boolean
-  referralCode: string
-  createdAt: string
-  hasCompletedFirstGeneration: boolean
-  hasCompletedFirstPurchase: boolean
-  purchasesCount: number
-}
-
 /** Публичный шаблон автора (лента «Главная») */
 export interface UserPublishedTemplate {
   id: number

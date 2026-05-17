@@ -1,5 +1,6 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import type { AuthResponse, AuthUser } from '../api/auth'
+import { refreshTokensApi } from '../api/auth'
 import { getMe } from '../api/me'
 import { syncGenerationLockFromServer } from '../lib/generationInFlight'
 import {
@@ -9,6 +10,7 @@ import {
 } from '../lib/telegramCloudAuth'
 
 const USER_STORAGE_KEY = 'neiro_user'
+const REFRESH_TOKEN_KEY = 'neiro_refresh_token'
 /** После «Выйти» в Mini App initData всё ещё есть — без флага AuthGate снова крутит авто-логин */
 export const SKIP_TG_AUTO_LOGIN_KEY = 'neiro_skip_tg_auto_login'
 
@@ -59,6 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     storage.setItem('token', data.token)
     storage.setItem(USER_STORAGE_KEY, JSON.stringify(data.user))
+    if (data.refreshToken) storage.setItem(REFRESH_TOKEN_KEY, data.refreshToken)
     syncSessionToTelegramCloud()
     setToken(data.token)
     setUser(data.user)
@@ -77,6 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     storage.removeItem('token')
     storage.removeItem(USER_STORAGE_KEY)
+    storage.removeItem(REFRESH_TOKEN_KEY)
     clearTelegramCloudSession()
     setToken(null)
     setUser(null)
@@ -121,9 +125,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
+  // Флаг: сейчас идёт запрос на обновление токенов (предотвращает повторный вызов)
+  const refreshingRef = useRef(false)
+
   useEffect(() => {
     if (!token || token === 'local-dev') return
     let cancelled = false
+
+    const isSessionDead = (err: unknown) => {
+      const status = typeof (err as Error & { status?: number }).status === 'number'
+        ? (err as Error & { status: number }).status
+        : null
+      const msg = String((err as Error)?.message ?? '').toLowerCase()
+      return (
+        status === 401 ||
+        msg.includes('401') ||
+        msg.includes('unauthorized') ||
+        msg.includes('invalid token') ||
+        msg.includes('недействительна')
+      )
+    }
+
+    const tryRefreshAndRetry = async () => {
+      const storedRefresh = storage.getItem(REFRESH_TOKEN_KEY)
+      if (!storedRefresh || refreshingRef.current) return false
+      refreshingRef.current = true
+      try {
+        const refreshed = await refreshTokensApi(storedRefresh)
+        if (cancelled) return false
+        // Обновляем токены в storage (user остаётся прежним до следующего getMe)
+        storage.setItem('token', refreshed.token)
+        storage.setItem(REFRESH_TOKEN_KEY, refreshed.refreshToken)
+        setToken(refreshed.token)
+        return true
+      } catch {
+        return false
+      } finally {
+        refreshingRef.current = false
+      }
+    }
+
     getMe(token)
       .then((r) => {
         if (!cancelled) {
@@ -132,31 +173,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           syncSessionToTelegramCloud()
         }
       })
-      .catch((err) => {
-        if (!cancelled) {
-          const status = typeof (err as Error & { status?: number }).status === 'number'
-            ? (err as Error & { status: number }).status
-            : null
-          const msg = String((err as Error)?.message ?? '')
-          const lower = msg.toLowerCase()
-          // Любой 401 с /me — протухший/чужой JWT, удалённый пользователь, смена JWT_SECRET и т.д.
-          const sessionDead =
-            status === 401 ||
-            lower.includes('401') ||
-            lower.includes('unauthorized') ||
-            lower.includes('invalid token') ||
-            (lower.includes('invalid') && lower.includes('token')) ||
-            msg.includes('недействительна')
-          if (sessionDead) {
+      .catch(async (err) => {
+        if (cancelled) return
+        if (isSessionDead(err)) {
+          // Пробуем тихо обновить токен по refreshToken
+          const refreshed = await tryRefreshAndRetry()
+          if (cancelled) return
+          if (refreshed) {
+            // Повторяем getMe с новым токеном
+            const newToken = storage.getItem('token')!
+            getMe(newToken)
+              .then((r) => {
+                if (!cancelled) {
+                  mergeUser(r.user)
+                  setUserFetched(true)
+                  syncSessionToTelegramCloud()
+                }
+              })
+              .catch(() => {
+                if (!cancelled) {
+                  clearAuth()
+                  setUserFetched(true)
+                }
+              })
+          } else {
+            // refresh тоже не помог — очищаем сессию
             storage.removeItem('token')
             storage.removeItem(USER_STORAGE_KEY)
+            storage.removeItem(REFRESH_TOKEN_KEY)
             clearTelegramCloudSession()
             setToken(null)
             setUser(null)
+            setUserFetched(true)
           }
+        } else {
           setUserFetched(true)
         }
       })
+
     return () => {
       cancelled = true
     }
