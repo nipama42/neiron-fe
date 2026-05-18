@@ -46,6 +46,12 @@ function isTgLogoutSkipActive(): boolean {
   }
 }
 
+/** Публичные разделы приложения без авторизации (индексация, шаринг профилей). */
+function isPublicAppPath(pathname: string): boolean {
+  if (pathname === '/explore') return true
+  return pathname.startsWith('/profile/author/')
+}
+
 function GateSpinner({ label }: { label?: string }) {
   return (
     <div
@@ -143,6 +149,14 @@ export default function AuthGate() {
     return (
       <Suspense fallback={<GateSpinner />}>
         <LandingPage />
+      </Suspense>
+    )
+  }
+
+  if (!token && isPublicAppPath(location.pathname)) {
+    return (
+      <Suspense fallback={<GateSpinner label="Загрузка…" />}>
+        <App />
       </Suspense>
     )
   }

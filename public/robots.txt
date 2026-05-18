@@ -1,12 +1,13 @@
 User-agent: *
-Allow: /
+Allow: /profile/author/
 
 # Private application areas
 Disallow: /admin
 Disallow: /chat
 Disallow: /create
 Disallow: /bonus
-Disallow: /profile
+Disallow: /profile$
+Disallow: /login
 Disallow: /me
 Disallow: /auth
 
@@ -15,4 +16,4 @@ Disallow: /public/feed
 Disallow: /public/generations/
 Disallow: /health
 
-Sitemap: https://neiron.store/sitemap.xml
+Sitemap: https://neiron.space/sitemap.xml

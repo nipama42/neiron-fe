@@ -12,6 +12,7 @@ import { postAdminRemoveFeedItem } from '../api/admin'
 import { useAuth } from '../store/authStore'
 import { saveCreateDraft } from '../lib/createDraftStorage'
 import { useExploreFilter, type ExploreFilterType } from '../store/exploreFilterContext'
+import { usePageSeo } from '../lib/seo'
 
 type FeedFilter = ExploreFilterType
 
@@ -77,6 +78,13 @@ function mainMediaUrl(item: PublicFeedItem): string | null {
 }
 
 export default function ExplorePage() {
+  usePageSeo({
+    title: 'Лента NEIRON — публичные работы с ИИ',
+    description:
+      'Смотрите фото и видео, созданные пользователями NEIRON: Nano Banana, GPT Image 2, Kling, Veo 3 и другие модели в одной ленте.',
+    canonicalPath: '/explore',
+  })
+
   const { token, user, mergeUser } = useAuth()
   const canModerateFeed = user?.isAdmin === true && Boolean(token && token !== 'local-dev')
   const navigate = useNavigate()

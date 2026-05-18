@@ -16,6 +16,7 @@ import {
 } from '../api/auth'
 import { openTelegramHttpsLink } from '../lib/telegramMiniAppRedirect'
 import { EMAIL_PASSWORD_REQUIREMENTS_HINT, isStrongEmailPassword } from '../lib/emailPasswordRules'
+import { usePageSeo } from '../lib/seo'
 
 const BOT_LOGIN_PENDING_KEY = 'neiro_bot_login_pending_v1'
 
@@ -111,6 +112,13 @@ function applyPastedTextToInput(
 }
 
 export default function LoginPage() {
+  usePageSeo({
+    title: 'Вход и регистрация — NEIRON',
+    description: 'Войдите в NEIRON через Telegram или email, чтобы генерировать фото, видео и музыку с ИИ.',
+    canonicalPath: '/login',
+    noindex: true,
+  })
+
   const location = useLocation()
   const navigate = useNavigate()
   const { initData } = useTelegram()

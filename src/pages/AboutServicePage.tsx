@@ -1,11 +1,19 @@
 import { useEffect, useState } from 'react'
 import LegalPageLayout from '../components/LegalPageLayout'
 import { getPublicSitePage } from '../api/sitePages'
+import { usePageSeo } from '../lib/seo'
 
 export default function AboutServicePage() {
   const [title, setTitle] = useState('О сервисе')
   const [bodyHtml, setBodyHtml] = useState<string | null>(null)
   const [ready, setReady] = useState(false)
+
+  usePageSeo({
+    title: ready ? `${title} — NEIRON` : 'О сервисе — NEIRON',
+    description:
+      'NEIRON — платформа для генерации фото, видео и музыки с помощью ИИ: Nano Banana, GPT Image 2, Kling, Google Veo 3 и другие модели.',
+    canonicalPath: '/about',
+  })
 
   useEffect(() => {
     getPublicSitePage('about')

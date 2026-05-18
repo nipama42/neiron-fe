@@ -1,12 +1,19 @@
 import { useEffect, useState } from 'react'
 import LegalPageLayout from '../components/LegalPageLayout'
 import { getPublicSitePage } from '../api/sitePages'
+import { usePageSeo } from '../lib/seo'
 import TermsDefaultArticle from './legal/TermsDefaultArticle'
 
 export default function TermsOfServicePage() {
   const [customHtml, setCustomHtml] = useState<string | null>(null)
   const [customTitle, setCustomTitle] = useState<string | null>(null)
   const [ready, setReady] = useState(false)
+
+  usePageSeo({
+    title: ready && customTitle ? `${customTitle} — NEIRON` : 'Условия использования — NEIRON',
+    description: 'Условия использования сервиса NEIRON: права, обязанности пользователей и правила генерации контента с ИИ.',
+    canonicalPath: '/terms',
+  })
 
   useEffect(() => {
     getPublicSitePage('terms')

@@ -17,6 +17,7 @@ import { saveCreateDraft } from '../lib/createDraftStorage'
 import { ProfileSocialIcon, type ProfileSocialKey } from '../components/ui/ProfileSocialIcon'
 import { onExternalAnchorClick } from '../lib/openExternalUrl'
 import { avatarReferrerPolicy, resolveAvatarUrl } from '../lib/resolveAvatarUrl'
+import { usePageSeo } from '../lib/seo'
 function normalize(v: string | null | undefined): string {
   return String(v ?? '').trim().toLowerCase()
 }
@@ -180,6 +181,14 @@ export default function PublicAuthorPage() {
     if (profile?.authorName) return profile.authorName
     return state?.authorName ?? 'Профиль автора'
   }, [profile, state?.authorName])
+
+  const authorCanonicalPath = `/profile/author/${encodeURIComponent(authorRef)}`
+
+  usePageSeo({
+    title: `${authorTitle} — NEIRON`,
+    description: `Публичный профиль ${authorTitle} на NEIRON: работы с ИИ в ленте автора.`,
+    canonicalPath: authorCanonicalPath,
+  })
 
   const authorSubtitle = useMemo(() => {
     if (profile?.authorTag && profile?.authorName) return profile.authorName

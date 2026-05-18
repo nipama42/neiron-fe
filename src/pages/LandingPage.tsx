@@ -2,28 +2,9 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import landingPhotoExmpl from '../assets/landing-photo-exmpl.png'
 import { getPublicFeed, type PublicFeedItem } from '../api/explore'
-
-const FAQ_ITEMS = [
-  
-  {
-    id: 'howtogenerate',
-    question: 'Как генерировать фото или видео?',
-    answer:
-      'Зарегистрируйтесь бесплатно на платформе с помощью электронной почты или Telegram. Перейдите в раздел "Создать", выберите тип генерации (фото, видео, музыка) и введите Ваш промпт. Вы также можете прикрепить свой файл для референса. Нажмите "Создать" и дождитесь результата.',
-  },
-  {
-    id: 'commercial',
-    question: 'Можно ли использовать результаты коммерчески?',
-    answer:
-      'Да. Все сгенерированные Вами материалы можно использовать в коммерческих целях согласно нашим условиям использования.',
-  },
-  {
-    id: 'partners',
-    question: 'Как устроена партнёрская программа?',
-    answer:
-      'У каждого пользователя есть личный код. За регистрации и покупки приглашённых — получаете бонусы.',
-  },
-]
+import SeoJsonLd from '../components/SeoJsonLd'
+import { LANDING_FAQ_ITEMS } from '../lib/landingFaq'
+import { buildLandingJsonLd, DEFAULT_PAGE_DESCRIPTION, DEFAULT_PAGE_TITLE, usePageSeo } from '../lib/seo'
 
 const LANDING_STYLES = `
 .landing-page {
@@ -290,7 +271,15 @@ function LandingMarqueeVideo({ src, eager }: { src: string; eager: boolean }) {
 
 export default function LandingPage() {
   const [communityFeed, setCommunityFeed] = useState<PublicFeedItem[]>([])
-  const [openFaqIds, setOpenFaqIds] = useState<string[]>(['coin'])
+  const [openFaqIds, setOpenFaqIds] = useState<string[]>(['howtogenerate'])
+
+  usePageSeo({
+    title: DEFAULT_PAGE_TITLE,
+    description: DEFAULT_PAGE_DESCRIPTION,
+    canonicalPath: '/',
+  })
+
+  const landingJsonLd = useMemo(() => buildLandingJsonLd(), [])
 
   useEffect(() => {
     let cancelled = false
@@ -321,6 +310,7 @@ export default function LandingPage() {
 
   return (
     <div className="landing-page">
+      <SeoJsonLd id="landing" data={landingJsonLd} />
       <style>{LANDING_STYLES}</style>
 
       {/* ============ ФОН ============ */}
@@ -734,7 +724,7 @@ export default function LandingPage() {
             <h2 className="text-4xl lg:text-5xl font-bold tracking-tight mb-10">Часто спрашивают</h2>
 
             <div className="divide-y divide-[var(--color-brand-light)]">
-              {FAQ_ITEMS.map((item) => {
+              {LANDING_FAQ_ITEMS.map((item) => {
                 const isOpen = openFaqIds.includes(item.id)
                 return (
                   <div key={item.id} className="py-5">

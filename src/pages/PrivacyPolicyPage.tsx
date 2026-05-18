@@ -1,12 +1,20 @@
 import { useEffect, useState } from 'react'
 import LegalPageLayout from '../components/LegalPageLayout'
 import { getPublicSitePage } from '../api/sitePages'
+import { usePageSeo } from '../lib/seo'
 import PrivacyDefaultArticle from './legal/PrivacyDefaultArticle'
 
 export default function PrivacyPolicyPage() {
   const [title, setTitle] = useState('Политика конфиденциальности')
   const [bodyHtml, setBodyHtml] = useState<string | null>(null)
   const [ready, setReady] = useState(false)
+
+  usePageSeo({
+    title: ready ? `${title} — NEIRON` : 'Политика конфиденциальности — NEIRON',
+    description:
+      'Политика конфиденциальности NEIRON: как мы обрабатываем персональные данные, cookies и информацию пользователей.',
+    canonicalPath: '/privacy',
+  })
 
   useEffect(() => {
     getPublicSitePage('privacy')
